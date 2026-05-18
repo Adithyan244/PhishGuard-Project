@@ -4,6 +4,8 @@ import whois
 import dns.resolver
 import requests
 from datetime import datetime
+import base64
+import difflib
 
 class URLForensicsEngine:
 
@@ -28,6 +30,8 @@ class URLForensicsEngine:
             **self.whois_lookup(domain),
             **self.check_urlhaus(url)
         }
+        features['vt_malicious_votes'] = self.check_virustotal(url)
+        features['typosquat_target'] = self.check_typosquatting(domain)
         return features
     
     def lexical_analysis(self, url, domain):
@@ -68,11 +72,43 @@ class URLForensicsEngine:
                         print(f"[+] RDAP Success: Domain is {days_old} days old.")
                         return {'domain_age_days': days_old}
             print(" [-] RDAP failed")
-            return {'domain_age_days': 1600}
+            return {'domain_age_days': -1}
         except Exception as e:
             print(f" [-] RDAP Exception: {e}")
             return {'domain_age_days': -1}
     
+    def check_typosquatting(self, domain):
+        print(f"[*] Checking for Typosquatting...")
+        main_name = domain.split('.')[0].lower()
+        high_value_targets = ['google', 'microsoft', 'apple', 'amazon', 'chase', 'paypal', 'netflix', 'github', 'bankofamerica']
+        for target in high_value_targets:
+            similarity = difflib.SequenceMatcher(None, main_name, target).ratio()
+            if 0.8 <= similarity < 1.0:
+                print(f" [!] TYPOSQUAT ALERT: '{main_name}' is spoofing '{target}'")
+                return target
+        return "None"
+
+    def check_virustotal(self,url):
+        print(f"[*] Querying VirusTotal API...")
+        url_id = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
+        vt_api_url = f"https://www.virustotal.com/api/v3/urls/{url_id}"
+        headers = {
+            "accept": "application/json",
+            "x-apikey": "YOUR VT_API_KEY"
+        }
+        try:
+            response = requests.get(vt_api_url, headers = headers, timeout = 5)
+            if response.status_code == 200:
+                data = response.json()
+                stats = data['data']['attributes']['last_analysis_stats']
+                malicious_votes = stats['malicious'] + stats['suspicious']
+                print (f" [+] VT found {malicious_votes} malicious votes")
+                return malicious_votes
+            else:
+                return 0
+        except Exception:
+            return 0
+
     def check_urlhaus(self, url):
         print("Querying URLhaus API...")
         api_url = "https://urlhaus-api.abuse.ch/v1/url/"
