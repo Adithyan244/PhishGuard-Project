@@ -94,7 +94,7 @@ class URLForensicsEngine:
         vt_api_url = f"https://www.virustotal.com/api/v3/urls/{url_id}"
         headers = {
             "accept": "application/json",
-            "x-apikey": "YOUR VT_API_KEY"
+            "x-apikey": "*The api key*"
         }
         try:
             response = requests.get(vt_api_url, headers = headers, timeout = 5)
