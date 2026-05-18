@@ -143,7 +143,7 @@ export default function App() {
             <div className={`p-4 rounded-lg border ${scanResult.status === 'MALICIOUS' ? 'bg-rose-950/30 border-rose-500/50' : 'bg-emerald-950/30 border-emerald-500/50'}`}>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-lg">Verdict: <span className={scanResult.status === 'MALICIOUS' ? 'text-rose-500' : 'text-emerald-500'}>{scanResult.status}</span></h3>
-                <span className="text-2xl font-black">{scanResult.risk_score_percentage}% Risk</span>
+                <span className="text-2xl font-black">{Number(scanResult.risk_score_percentage).toFixed(2)}% Risk</span>
               </div>
               
               <div className="bg-slate-900 rounded p-3 font-mono text-sm break-all mb-4 text-slate-300">
