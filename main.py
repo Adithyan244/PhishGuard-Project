@@ -5,6 +5,7 @@ import joblib
 import pandas as pd
 from cti_engine import URLForensicsEngine
 import urllib.parse
+import re
 
 app = FastAPI(title = "PhishGuard Core API", version = "1.0")
 
@@ -54,11 +55,56 @@ async def scan_url(request: ScanRequest):
         features_dict = engine.extract_all_features(target_url)
         if not features_dict:
             raise HTTPException(status_code = 500, detail = "Feature extraction failed.")
-        ml_features = {k: v for k, v in features_dict.items() if k not in ['url', 'domain', 'domain_age_days', 'vt_malicious_values', 'typosquat_target']}
-        features_df = pd.DataFrame([ml_features])
+        # 1. MALICIOUS BYPASS: Bare IP Address 
+        if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", domain):
+            print("[*] Bare IP Address detected (MALICIOUS).")
+            features_dict['tripwire_alert'] = "Critical Threat - Bare IP address used instead of domain name."
+            return {
+                "target_url": target_url, "status": "MALICIOUS", "risk_score_percentage": 99.9, "forensics_report": features_dict
+            }
+        if "@" in parsed.netloc:
+            print("[*] Credential spoofing symbol '@' detected (MALICIOUS).")
+            features_dict['tripwire_alert'] = "Critical Threat - Suspicious '@' symbol used to spoof destination."
+            return {
+                "target_url": target_url, "status": "MALICIOUS", "risk_score_percentage": 99.9, "forensics_report": features_dict
+            }
+        urlhaus_hits = features_dict.get('urlhaus_hits', 0)
+        if urlhaus_hits > 0:
+            print(f"[*] URLHaus threat detected ({urlhaus_hits} hits) (MALICIOUS).")
+            features_dict['tripwire_alert'] = "Known malicious URL flagged by URLHaus global blocklist."
+            return {
+                "target_url": target_url, "status": "MALICIOUS", "risk_score_percentage": 99.9, "forensics_report": features_dict
+            }
+        domain_age = features_dict.get('domain_age_days')
+        has_dns = features_dict.get('has_dns', True) 
+        
+        if (domain_age is not None and domain_age > 600) and has_dns:
+            features_dict['tripwire_alert'] = f"Domain is highly established ({domain_age} days old) with no active threat indicators."
+            return {
+                "target_url": target_url, "status": "BENIGN", "risk_score_percentage": 0.0, "forensics_report": features_dict
+            }
+        ml_features = {k: v for k, v in features_dict.items() if k not in ['url', 'domain', 'domain_age_days', 'vt_malicious_votes', 'typosquat_target']}
+        clean_features = {}
+        for key, value in ml_features.items():
+            if value is None:
+                clean_features[key] = -1.0 
+            elif isinstance(value, bool):
+                clean_features[key] = int(value) 
+            else:
+                clean_features[key] = float(value)
+        features_df = pd.DataFrame([clean_features])
+        if hasattr(ml_model, 'feature_names_in_'):
+            features_df = features_df.reindex(columns=ml_model.feature_names_in_, fill_value=-1.0)
         prediction = ml_model.predict(features_df)[0]
         probabilities = ml_model.predict_proba(features_df)[0]
         risk_score = float(round(probabilities[1]*100,2))
+        domain_age = features_dict.get('domain_age_days')
+        has_dns = features_dict.get('has_dns', True)
+        if domain_age is not None and domain_age > 600 and has_dns:
+            trust_multiplier = 0.4*600.0 / domain_age
+            original_score = risk_score
+            risk_score = float(round(risk_score * trust_multiplier, 2))
+            features_dict['tripwire_alert'] = f"Trust Weight Applied: Domain age ({domain_age} days) decayed raw AI score by {round((1-trust_multiplier)*100)}%."
         prediction = int(prediction)
         status = "MALICIOUS" if prediction == 1 else "BENIGN"
         # Overriding the AI
