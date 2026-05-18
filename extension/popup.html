@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "UTF-8">
+        <style>
+            body {
+                font-family: 'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                width: 320px;
+                padding: 15px;
+                margin: 0;
+                background-color: #1e1e2e;
+                color: #cdd6f4;
+            }
+            h2 {
+                margin-top: 0;
+                color: #89b4fa;
+                text-align: center;
+            }
+            .url-box {
+                background: #313244;
+                padding: 10px;
+                border-radius: 6px;
+                word-wrap: break-word;
+                font-size: 12px;
+                margin-bottom: 15px;
+                border: 1px solid #45475a;
+            }
+            button {
+                width: 100%;
+                padding: 10px;
+                background-color: #89b4fa;
+                color: #11111b;
+                border: None;
+                border-radius: 6px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+            button:hover {
+                background-color: #b4befe;
+            }
+            #result {
+                margin-top: 15px;
+                padding: 10px;
+                border-radius: 6px;
+                text-align: center;
+                font-weight: bold;
+                display: None;
+            }
+            .safe {
+                background-color: #a6e3a1;
+                color: #11111b;
+            }
+            .danger {
+                background-color: #f38ba8;
+                color: #11111b;
+            }
+            .stats {
+                font-size: 12px;
+                margin-top: 5px;
+                font-weight: normal;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>PhishGuard AI</h2>
+        <div class = "url-box" id = "current-url">Loading URL...</div>
+        <button id = "scan-btn">Scan Current Page</button>
+        <div id = "result">
+            <span id = "status-text"></span>
+            <div class = "stats" id = "risk-score"></div>
+        </div>
+        <script src = "popup.js"></script>
+    </body>
+</html>

@@ -1,0 +1,14 @@
+# Python Environment
+venv/
+__pycache__/
+*.pyc
+
+# Machine Learning Models
+models/*.pkl
+
+# Massive Datasets
+data/raw/*.csv
+data/processed/*.csv
+
+# API Keys and Secrets
+.env

@@ -1,0 +1,10 @@
+{
+    "manifest_version" : 3,
+    "name" : "PhishGuard AI",
+    "version" : "1.0",
+    "description" : "Real-time AI phising detection.",
+    "action" : {
+        "default_popup" : "popup.html"
+    },
+    "permissions" : ["activeTab", "scripting"]
+}
