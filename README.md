@@ -8,6 +8,7 @@ By combining lexical URL analysis, live DNS/WHOIS forensics, and global threat i
 
 ---
 
+
 ## 🛑 The Problem & The PhishGuard Solution
 
 Traditional machine learning models in cybersecurity suffer from a critical flaw: they are computationally expensive and treat trust as a binary outcome. Feeding every single network request into an XGBoost model—including dead domains or globally trusted sites like Google—creates massive latency and wastes CPU resources. Furthermore, standard models struggle to adapt to the nuance of domain age; they either block a site or they don't, lacking the ability to dynamically weight their suspicion.
