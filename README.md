@@ -51,7 +51,6 @@ cd PhishGuard# 🛡️ PhishGuard AI: Real-Time Threat Intelligence Pipeline
 ![XGBoost](https://img.shields.io/badge/Machine_Learning-XGBoost-F37626?logo=xgboost)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-> **[Insert a screenshot of your beautiful Tailwind V4 dashboard here]**
 ```
 
 ## 📖 Project Overview
