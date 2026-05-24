@@ -52,6 +52,7 @@ cd PhishGuard# 🛡️ PhishGuard AI: Real-Time Threat Intelligence Pipeline
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 > **[Insert a screenshot of your beautiful Tailwind V4 dashboard here]**
+```
 
 ## 📖 Project Overview
 
